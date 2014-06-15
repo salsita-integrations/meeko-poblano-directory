@@ -13,10 +13,10 @@ There are two Meeko variables that must be set:
 
 There are two methods being exported:
 
-* `Poblano.GetUser` - execute `GET API_BASE_URL/users?QUERY_STRING` where `QUERY_STRING`
+* `Poblano@1.GetUser` - execute `GET API_BASE_URL/users?QUERY_STRING` where `QUERY_STRING`
   is the only argument that this method needs. The arguments object is thus `{"query":
   <string>}`. The return value is exactly what was returned by the API call.
-* `Poblano.GetProject` - the same as `Poblano.GetUser` except the fact that
+* `Poblano@1.GetProject` - the same as `Poblano.GetUser` except the fact that
   `/projects` is used in the Poblano Directory API call.
 
 ## Contributing ##
