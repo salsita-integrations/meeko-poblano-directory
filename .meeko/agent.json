@@ -1,0 +1,15 @@
+{
+  "name": "meeko-poblano-directory",
+  "version": "0.0.1",
+  "description": "Poblano Directory API client for Meeko",
+  "clone_dir": "github.com/salsita-meeko/meeko-poblano-directory",
+  "variables": {
+    "API_BASE_URL": {
+      "usage": "the URL where the API can be found"
+    },
+    "API_TOKEN": {
+      "usage": "the access token to use for authentication",
+      "secret": true
+    }
+  }
+}
