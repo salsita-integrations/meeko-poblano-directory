@@ -14,7 +14,7 @@ import (
 )
 
 func main() {
-	// Instantiate Logging service.
+	// Get the Logging service.
 	var log = agent.Logging()
 
 	// Parse the environment.
@@ -24,29 +24,24 @@ func main() {
 	)
 	if apiBaseURL == "" {
 		log.Critical("API_BASE_URL is not set")
-		log.Close()
-		os.Exit(1)
+		agent.Terminate(2)
 	}
 	if apiToken == "" {
 		log.Critical("API_TOKEN is not set")
-		log.Close()
-		os.Exit(1)
+		agent.Terminate(2)
 	}
 
-	// Instantiate RPC service.
+	// Get the RPC service.
 	var rpc = agent.RPC()
 
 	// Export all available methods.
 	client := poblano.NewClient(apiBaseURL, apiToken)
 	if err := methods.New(log, client).Export(rpc); err != nil {
 		log.Critical(err)
-		log.Close()
-		rpc.Close()
-		os.Exit(1)
+		agent.Terminate(1)
 	}
 
 	// Wait for the termination signal.
 	<-agent.Stopped()
-	log.Close()
-	rpc.Close()
+	agent.Terminate(0)
 }
