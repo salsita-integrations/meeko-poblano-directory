@@ -4,20 +4,24 @@ Meeko agent that exports Poblano Directory API calls as native Meeko RPC methods
 
 ## Agent Configuration ##
 
-There are two Meeko variables that must be set:
+There are three Meeko variables that must be set:
 
 * `API_BASE_URL` - the URL where the API can be found
 * `API_TOKEN` - the access token to use for authentication
+* `RPC_TOKEN` - the token that must be passed as an argument in all RPC requests
 
 ## Agent Interface ##
 
 There are two methods being exported:
 
-* `Poblano@1.GetUser` - execute `GET API_BASE_URL/users?QUERY_STRING` where `QUERY_STRING`
-  is the only argument that this method needs. The arguments object is thus `{"query":
-  <string>}`. The return value is exactly what was returned by the API call.
-* `Poblano@1.GetProject` - the same as `Poblano@1.GetUser` except the fact that
-  `/projects` is used in the Poblano Directory API call.
+* `PoblanoDirectory@1.GetUser` - execute `GET API_BASE_URL/users?QUERY_STRING`
+  where `QUERY_STRING` is the `query` argument.
+* `PoblanoDirectory@1.GetProject` - the same as `PoblanoDirectory@1.GetUser`
+  except the fact that `/projects` is used in the Poblano Directory API call.
+
+### Arguments and Return Values ###
+
+See the `methods` package, it's really small.
 
 ## Contributing ##
 

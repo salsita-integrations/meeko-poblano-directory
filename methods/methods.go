@@ -10,7 +10,7 @@ import (
 	"github.com/salsita/go-poblano/v1/poblano"
 )
 
-const MethodPrefix = "Poblano@1"
+const MethodPrefix = "PoblanoDirectory@1"
 
 type MethodRegistry interface {
 	RegisterMethod(method string, handler rpc.RequestHandler) error
@@ -23,19 +23,26 @@ type Logger interface {
 }
 
 type Methods struct {
-	log    Logger
-	client *poblano.Client
+	log      Logger
+	client   *poblano.Client
+	rpcToken string
 }
 
-func New(logger Logger, client *poblano.Client) *Methods {
-	return &Methods{logger, client}
+func New(logger Logger, client *poblano.Client, rpcToken string) *Methods {
+	return &Methods{logger, client, rpcToken}
 }
 
 func (ms *Methods) getUsers(request rpc.RemoteRequest) {
 	// Unmarshal the arguments.
 	var args GetUsersArgs
 	if err := request.UnmarshalArgs(&args); err != nil {
-		ms.resolve(request, 1, &GetUsersReturnValue{Error: err})
+		ms.resolve(request, 1, &GetUsersReturnValue{Error: err.Error()})
+		return
+	}
+
+	// Check the RPC token.
+	if args.RPCToken != ms.rpcToken {
+		ms.resolve(request, 2, &GetUsersReturnValue{Error: "invalid RPC token"})
 		return
 	}
 
@@ -48,7 +55,7 @@ func (ms *Methods) getUsers(request rpc.RemoteRequest) {
 	}
 	req, err := ms.client.NewRequest("GET", url, nil)
 	if err != nil {
-		ms.resolve(request, 2, &GetUsersReturnValue{Error: err})
+		ms.resolve(request, 3, &GetUsersReturnValue{Error: err.Error()})
 		return
 	}
 
@@ -57,19 +64,30 @@ func (ms *Methods) getUsers(request rpc.RemoteRequest) {
 	resp, err := ms.client.Do(req, &users)
 
 	// Resolve the RPC request.
-	ms.resolve(request, 0, &GetUsersReturnValue{
+	retVal := &GetUsersReturnValue{
 		Status:     resp.Status,
 		StatusCode: resp.StatusCode,
 		Users:      users,
-		Error:      err,
-	})
+	}
+	if err == nil {
+		ms.resolve(request, 0, retVal)
+	} else {
+		retVal.Error = err.Error()
+		ms.resolve(request, 4, retVal)
+	}
 }
 
 func (ms *Method) getProjects(req rpc.RemoteRequest) {
 	// Unmarshal the arguments.
 	var args GetProjectsArgs
 	if err := request.UnmarshalArgs(&args); err != nil {
-		ms.resolve(request, 1, &GetProjectsReturnValue{Error: err})
+		ms.resolve(request, 1, &GetProjectsReturnValue{Error: err.Error()})
+		return
+	}
+
+	// Check the RPC token.
+	if args.RPCToken != ms.rpcToken {
+		ms.resolve(request, 2, &GetProjectsReturnValue{Error: "invalid RPC token"})
 		return
 	}
 
@@ -82,7 +100,7 @@ func (ms *Method) getProjects(req rpc.RemoteRequest) {
 	}
 	req, err := ms.client.NewRequest("GET", url, nil)
 	if err != nil {
-		ms.resolve(request, 2, &GetProjectsReturnValue{Error: err})
+		ms.resolve(request, 3, &GetProjectsReturnValue{Error: err})
 		return
 	}
 
@@ -91,12 +109,17 @@ func (ms *Method) getProjects(req rpc.RemoteRequest) {
 	resp, err := ms.client.Do(req, &users)
 
 	// Resolve the RPC request.
-	ms.resolve(request, 0, &GetProjectsReturnValue{
+	retVal := &GetProjectsReturnValue{
 		Status:     resp.Status,
 		StatusCode: resp.StatusCode,
 		Users:      users,
-		Error:      err,
-	})
+	}
+	if err == nil {
+		ms.resolve(request, 0, retVal)
+	} else {
+		retVal.Error = err.Error()
+		ms.resolve(request, 4, retVal)
+	}
 }
 
 func (ms *Methods) resolve(request rpc.RemoteRequest, retCode rpc.ReturnCode, retValue interface{}) {

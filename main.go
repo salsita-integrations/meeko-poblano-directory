@@ -21,6 +21,7 @@ func main() {
 	var (
 		apiBaseURL = os.Getenv("API_BASE_URL")
 		apiToken   = os.Getenv("API_TOKEN")
+		rpcToken   = os.Getenv("RPC_TOKEN")
 	)
 	if apiBaseURL == "" {
 		log.Critical("API_BASE_URL is not set")
@@ -30,13 +31,17 @@ func main() {
 		log.Critical("API_TOKEN is not set")
 		agent.Terminate(2)
 	}
+	if rpcToken == "" {
+		log.Critical("RPC_TOKEN is not set")
+		agent.Terminate(2)
+	}
 
 	// Get the RPC service.
 	var rpc = agent.RPC()
 
 	// Export all available methods.
 	client := poblano.NewClient(apiBaseURL, apiToken)
-	if err := methods.New(log, client).Export(rpc); err != nil {
+	if err := methods.New(log, client, rpcToken).Export(rpc); err != nil {
 		log.Critical(err)
 		agent.Terminate(1)
 	}

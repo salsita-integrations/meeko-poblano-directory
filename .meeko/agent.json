@@ -10,6 +10,10 @@
     "API_TOKEN": {
       "usage": "the access token to use for authentication",
       "secret": true
+    },
+    "RPC_TOKEN": {
+      "usage": "the token that must be passed as an argument in all RPC requests",
+      "secret": true
     }
   }
 }
